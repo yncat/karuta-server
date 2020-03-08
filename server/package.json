@@ -10,5 +10,6 @@
   "author": "Yukio Nozawa",
   "license": "ISC",
   "dependencies": {
+    "websocket": "^1.0.31"
   }
 }
