@@ -3,6 +3,8 @@ var http = require('http');
 
 const PORT = process.env.PORT || 3000;
 
+var connections=new Array();
+
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
     response.writeHead(404);
@@ -38,6 +40,7 @@ wsServer.on('request', function(request) {
 
     var connection = request.accept('echo-protocol', request.origin);
     console.log((new Date()) + ' Connection accepted.');
+    connections.push(connection);
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
@@ -50,5 +53,7 @@ wsServer.on('request', function(request) {
     });
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+        connections = connections.filter(function( item ) {return item !== connection;});
+        console.log("number of connections: "+connections.length);
     });
 });
