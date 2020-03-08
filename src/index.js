@@ -30,6 +30,15 @@ function originIsAllowed(origin) {
   return true;
 }
 
+function processMessage(message){
+  m=JSON.parse(message);
+  if(m['command']=='request'){
+    send={'command': 'play', 'filename': m['filename']};
+    send=JSON.stringify(send);
+    connections.forEach((elem) => {elem.sendUTF(send);});
+  }
+}
+
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
@@ -44,7 +53,7 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
-            connection.sendUTF(message.utf8Data);
+            processMessage(message.utf8Data);
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
