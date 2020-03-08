@@ -1,5 +1,5 @@
 {
-  "name": "karuta server",
+  "name": "karuta-server",
   "version": "1.0.0",
   "description": "karuta server",
   "main": "src/index.js",
