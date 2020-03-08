@@ -31,9 +31,9 @@ function originIsAllowed(origin) {
 }
 
 function processMessage(message){
-  m=JSON.parse(message);
+  const m=JSON.parse(message);
   if(m['command']=='request'){
-    send={'command': 'play', 'filename': m['filename']};
+    var send={'command': 'play', 'filename': m['filename']};
     send=JSON.stringify(send);
     connections.forEach((elem) => {elem.sendUTF(send);});
   }
@@ -47,7 +47,7 @@ wsServer.on('request', function(request) {
       return;
     }
 
-    var connection = request.accept('echo-protocol', request.origin);
+    var connection = request.accept('karuta-protocol', request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connections.push(connection);
     connection.on('message', function(message) {
