@@ -30,12 +30,17 @@ function originIsAllowed(origin) {
   return true;
 }
 
+function sendMessage(message_plain){
+  if(connections.length==0) return;
+  message_json=JSON.stringify(message_plain);
+  connections.forEach((elem) => {elem.sendUTF(message_json);});
+}
+
 function processMessage(message){
   const m=JSON.parse(message);
   if(m['command']=='request'){
-    var send={'command': 'play', 'filename': m['filename']};
-    send=JSON.stringify(send);
-    connections.forEach((elem) => {elem.sendUTF(send);});
+    var message={'command': 'play', 'filename': m['filename']};
+    sendMessage(message);
   }
 }
 
