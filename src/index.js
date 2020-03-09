@@ -36,6 +36,11 @@ function sendMessage(message_plain){
   connections.forEach((elem) => {elem.sendUTF(message_json);});
 }
 
+function notifyConnectionCount(){
+var msg={'command': 'player_count', 'number': connections.length};
+sendMessage(msg);
+}
+
 function processMessage(message){
   const m=JSON.parse(message);
   if(m['command']=='request'){
@@ -55,6 +60,7 @@ wsServer.on('request', function(request) {
     var connection = request.accept('karuta-protocol', request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connections.push(connection);
+    notifyConnectionCount();
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
@@ -68,6 +74,6 @@ wsServer.on('request', function(request) {
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
         connections = connections.filter(function( item ) {return item !== connection;});
-        console.log("number of connections: "+connections.length);
+        notifyConnectionCount();
     });
 });
