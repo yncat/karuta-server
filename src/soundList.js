@@ -1,4 +1,4 @@
-var sounds=new Array(
+exports.sounds=new Array(
 'angry cat',
 'bird',
 'cat',

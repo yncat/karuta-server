@@ -2,6 +2,7 @@ var WebSocketServer = require('websocket').server;
 var http = require('http');
 var soundList=require('./soundList.js');
 
+console.log(soundList.sounds);
 const PORT = process.env.PORT || 3000;
 
 var connections=new Array();
