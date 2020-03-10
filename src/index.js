@@ -57,10 +57,10 @@ sendMessage(msg);
 
 function processRemoteControlRequest(sender_connection){
   if(remote_controller){
-    sendMessageTo({'remote_control_request_result': 'false'},sender_connection);
+    sendMessageTo({'command': 'remote_control_request_result', 'result': 'false'},sender_connection);
   }else{
     remote_controller=sender_connection;
-    sendMessageTo({'remote_control_request_result': 'true'},sender_connection);
+    sendMessageTo({'command': 'remote_control_request_result', 'result': 'true'},sender_connection);
   }
 }
 
@@ -71,7 +71,7 @@ function processMessage(message,sender_connection){
     sendMessage(message);
   }
   if(m['command']=='remote_control_request'){
-    ProcessRemoteControlRequest(sender_connection);
+    processRemoteControlRequest(sender_connection);
   }
 }
 
@@ -90,7 +90,7 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
-            processMessage(message.utf8Data);
+            processMessage(message.utf8Data,connection);
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
