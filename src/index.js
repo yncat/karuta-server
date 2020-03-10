@@ -100,7 +100,7 @@ function processChallengeRequest(m){
     }
     if(sound_candidates.length>0){
       console.log("selecting from the first candidates.");
-      const r=Math.floor(Math.random()*sound_candidates);
+      const r=Math.floor(Math.random()*sound_candidates.length);
       console.log("random is "+r+" ("+sound_candidates[r]);
       play_list[i]=sound_candidates[r];
       sound_candidates.splice(r,1);
