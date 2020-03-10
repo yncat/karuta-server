@@ -1,5 +1,6 @@
 var WebSocketServer = require('websocket').server;
 var http = require('http');
+var soundList=require('./soundList.js');
 
 const PORT = process.env.PORT || 3000;
 
@@ -58,11 +59,47 @@ function processRemoteControlRequest(sender_connection){
   }
 }
 
+function sendChallenge(cards,play_list){
+  var send={'command': 'play', 'filename': null};
+  for(var i=0;i<cards.length;i++){
+    send['filename']=play_list[i];
+    const send_json=JSON.stringify(send);
+    cards[i].sendUTF(send_json);
+  }
+}
+
+function processChallengeRequest(m){
+  const right_sound=m['filename'];
+  var cards=connections.filter((elem)=>{return elem !== remote_controller;});
+  if(cards.length==0){
+    return;
+  }
+  if(cards.length==1){
+    sendChallenge(cards,[right_sound]);
+   return;
+  }
+  var sound_candidates=soundList.sounds.slice(0,soundList.sounds.length);
+  sound_candidates=sound_candidates.filter((elem)=>{return elem != right_sound;});
+  const sound_candidates_backup=sound_candidates.slice(0,sound_candidates.length);
+  var play_list=new Array(cards.length);
+  play_list[Math.floor(Math.random()*cards.length)]=right_sound;
+  for(var i=0;i<cards.length;i++){
+    if(play_list[i]) continue;
+    if(sound_candidates.length>0){
+      const r=Math.floor(Math.random()*sound_candidates);
+      play_list[i]=sound_candidates[r];
+      sound_candidates.splice(r,1);
+    }else{
+      play_list[i]=sound_candidates_backup[Math.floor(Math.random()*sound_candidates_backup.length)];
+    }
+  }
+  sendChallenge(cards,play_list);
+}
+
 function processMessage(message,sender_connection){
   const m=JSON.parse(message);
   if(m['command']=='request'){
-    var message={'command': 'play', 'filename': m['filename']};
-    sendMessage(message);
+    processChallengeRequest(m);
   }
   if(m['command']=='remote_control_request'){
     processRemoteControlRequest(sender_connection);
