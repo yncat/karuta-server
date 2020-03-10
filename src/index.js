@@ -5,6 +5,8 @@ const PORT = process.env.PORT || 3000;
 
 var connections=new Array();
 
+var remote_controller=null;
+
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
     response.writeHead(404);
@@ -30,22 +32,46 @@ function originIsAllowed(origin) {
   return true;
 }
 
-function sendMessage(message_plain){
+function sendMessage(message_plain,exclude_remote_controller=false){
   if(connections.length==0) return;
   message_json=JSON.stringify(message_plain);
-  connections.forEach((elem) => {elem.sendUTF(message_json);});
+  connections.forEach((elem) => {
+    if(!exclude_remote_controller){
+      elem.sendUTF(message_json);
+    }else if(elem!==remote_controller){
+      elem.sendUTF(message_json);
+    }
+  });
 }
+
+function sendMessageTo(message_plain,connection){
+  message_json=JSON.stringify(message_plain);
+  connection.sendUTF(message_json);
+}
+
 
 function notifyConnectionCount(){
 var msg={'command': 'player_count', 'number': connections.length};
 sendMessage(msg);
 }
 
-function processMessage(message){
+function processRemoteControlRequest(sender_connection){
+  if(remote_controller){
+    sendMessageTo({'remote_control_request_result': 'false'},sender_connection);
+  }else{
+    remote_controller=sender_connection;
+    sendMessageTo({'remote_control_request_result': 'true'},sender_connection);
+  }
+}
+
+function processMessage(message,sender_connection){
   const m=JSON.parse(message);
   if(m['command']=='request'){
     var message={'command': 'play', 'filename': m['filename']};
     sendMessage(message);
+  }
+  if(m['command']=='remote_control_request'){
+    ProcessRemoteControlRequest(sender_connection);
   }
 }
 
