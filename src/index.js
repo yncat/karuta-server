@@ -61,10 +61,13 @@ function processRemoteControlRequest(sender_connection){
 }
 
 function sendChallenge(cards,play_list){
+  console.log("sendChallenge.");
   var send={'command': 'play', 'filename': null};
   for(var i=0;i<cards.length;i++){
+    console.log("it "+i);
     send['filename']=play_list[i];
     const send_json=JSON.stringify(send);
+    console.log("sending "+send_json);
     cards[i].sendUTF(send_json);
   }
 }
@@ -72,6 +75,7 @@ function sendChallenge(cards,play_list){
 function processChallengeRequest(m){
   const right_sound=m['filename'];
   var cards=connections.filter((elem)=>{return elem !== remote_controller;});
+  console.log("number of cards: "+cards.length);
   if(cards.length==0){
     return;
   }
@@ -81,15 +85,26 @@ function processChallengeRequest(m){
   }
   var sound_candidates=soundList.sounds.slice(0,soundList.sounds.length);
   sound_candidates=sound_candidates.filter((elem)=>{return elem != right_sound;});
+  console.log("sound_candidates: "+sound_candidates.length+" items");
   const sound_candidates_backup=sound_candidates.slice(0,sound_candidates.length);
+  console.log("sound_candidates_backup: "+sound_candidates_backup.length+" items");
   var play_list=new Array(cards.length);
+  console.log("play_list: "+play_list.length+" items");
   play_list[Math.floor(Math.random()*cards.length)]=right_sound;
+  console.log("start iteration");
   for(var i=0;i<cards.length;i++){
-    if(play_list[i]) continue;
+    console.log("it "+i);
+    if(play_list[i]){
+      console.log("skipping");
+      continue;
+    }
     if(sound_candidates.length>0){
+      console.log("selecting from the first candidates.");
       const r=Math.floor(Math.random()*sound_candidates);
+      console.log("random is "+r+" ("+sound_candidates[r]);
       play_list[i]=sound_candidates[r];
       sound_candidates.splice(r,1);
+      console.log("sound_candidates now has "+sound_candidates.length+" items.");
     }else{
       play_list[i]=sound_candidates_backup[Math.floor(Math.random()*sound_candidates_backup.length)];
     }
