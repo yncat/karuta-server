@@ -72,6 +72,10 @@ function processMessage(message,sender_connection){
   }
   if(m['command']=='remote_control_request'){
     processRemoteControlRequest(sender_connection);
+    return;
+  }
+  if(m['command']=='remote_control_exit'){
+    remote_controller=null;
   }
 }
 
@@ -100,6 +104,7 @@ wsServer.on('request', function(request) {
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
         connections = connections.filter(function( item ) {return item !== connection;});
+        if(remote_controller===connection) remote_controller=null;
         notifyConnectionCount();
     });
 });
