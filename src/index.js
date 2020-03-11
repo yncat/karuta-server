@@ -66,8 +66,8 @@ function processRemoteControlRequest(sender_connection) {
   }
 }
 
-function sendChallenge(cards, play_list) {
-  var send = { command: "play", filename: null };
+function sendChallenge(cards, play_list,right_answer) {
+  var send = { 'command': 'play', 'filename': null, 'right_filename': right_sound };
   for (var i = 0; i < cards.length; i++) {
     send["filename"] = play_list[i];
     const send_json = JSON.stringify(send);
@@ -75,16 +75,21 @@ function sendChallenge(cards, play_list) {
   }
 }
 
-function processChallengeRequest(m) {
-  const right_sound = m["filename"];
+function getCardConnections(){
   var cards = connections.filter(elem => {
     return elem !== remote_controller;
   });
+  return cards;
+}
+
+function processChallengeRequest(m) {
+  const right_sound = m["filename"];
+  var cards=getCardConnections();
   if (cards.length == 0) {
     return;
   }
   if (cards.length == 1) {
-    sendChallenge(cards, [right_sound]);
+    sendChallenge(cards, [right_sound],right_sound);
     return;
   }
   var sound_candidates = soundList.sounds.slice(0, soundList.sounds.length);
@@ -112,13 +117,21 @@ function processChallengeRequest(m) {
         ];
     }
   }
-  sendChallenge(cards, play_list);
+  sendChallenge(cards, play_list,right_sound);
+}
+
+function processTookRight(){
+  var cards=getCardConnections();
+  cards.forEach((elem)=>{
+    sendMessageTo({'command': 'took_right'}, elem);
+  });
 }
 
 function processMessage(message, sender_connection) {
   const m = JSON.parse(message);
   if (m["command"] == "request") {
     processChallengeRequest(m);
+    return;
   }
   if (m["command"] == "remote_control_request") {
     processRemoteControlRequest(sender_connection);
@@ -126,6 +139,9 @@ function processMessage(message, sender_connection) {
   }
   if (m["command"] == "remote_control_exit") {
     remote_controller = null;
+  }
+  if(m["command"]=="took_right"){
+    processTookRight();
   }
 }
 
