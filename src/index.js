@@ -1,3 +1,8 @@
+/*
+Karuta server
+Copyright (C) 2020 Yukio Nozawa <personal@nyanchangames.com>
+/*
+
 var WebSocketServer = require("websocket").server;
 var http = require("http");
 var soundList = require("./soundList.js");
