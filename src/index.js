@@ -66,7 +66,7 @@ function processRemoteControlRequest(sender_connection) {
   }
 }
 
-function sendChallenge(cards, play_list,right_answer) {
+function sendChallenge(cards, play_list,right_sound) {
   var send = { 'command': 'play', 'filename': null, 'right_filename': right_sound };
   for (var i = 0; i < cards.length; i++) {
     send["filename"] = play_list[i];
